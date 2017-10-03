@@ -1,7 +1,6 @@
 package com.dreamogrammers.sunnat629.hellotwitter;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -65,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 //                                "\nT.Secret: " + secret);
 
                 // use AsyncTask to retrieve data with a Long parameter for userID
-                new TwitterDataTask().execute(userID);
+                loadTwitterAPI(userID);
             }
 
             @Override
@@ -75,33 +74,26 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private class TwitterDataTask extends AsyncTask<Long, Void, Void> {
-        @Override
-        protected Void doInBackground(Long... userID) {
+    private void loadTwitterAPI(long userID) {
+        new MyTwitterApiClient(session).getCustomService().show(userID)
+                .enqueue(new Callback<User>() {
+                    @Override
+                    public void success(Result<User> result) {
+                        ((TextView) findViewById(R.id.display)).setText(
+                                "Name: "+result.data.name
+                                        +"\nLocation: "+result.data.location
+                                        +"\nFriends: "+result.data.friendsCount
+                        );
+                        Picasso.with(getBaseContext()).load(result.data.profileImageUrl).
+                                resize(250,250)
+                                .into((ImageView)findViewById(R.id.imageView));
+                    }
 
-            // Call the MyTwitterApiClient for user/show session
-            new MyTwitterApiClient(session).getCustomService().show(userID[0])
-                    .enqueue(new Callback<User>() {
-                        @Override
-                        public void success(Result<User> result) {
-                            ((TextView) findViewById(R.id.display)).setText(
-                                    "Name: "+result.data.name
-                                    +"\nLocation: "+result.data.location
-                                    +"\nFriends: "+result.data.friendsCount
-                            );
-                            Picasso.with(getBaseContext()).load(result.data.profileImageUrl).
-                                    resize(250,250)
-                                    .into((ImageView)findViewById(R.id.imageView));
-                         }
-
-                        @Override
-                        public void failure(TwitterException exception) {
-                            Log.e("Failed", exception.toString());
-                        }
-                    });
-
-            return null;
-        }
+                    @Override
+                    public void failure(TwitterException exception) {
+                        Log.e("Failed", exception.toString());
+                    }
+                });
     }
 
 
