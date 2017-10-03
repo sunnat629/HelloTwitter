@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 //                                "\nToken Key: " + token +
 //                                "\nT.Secret: " + secret);
 
-                // use AsyncTask to retrieve data with a Long parameter for userID
+                // use Retrofit2 to retrieve data with a Long parameter for userID
                 loadTwitterAPI(userID);
             }
 
